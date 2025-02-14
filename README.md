@@ -1,6 +1,6 @@
 ![](https://github.com/ahlashkari/CANSigLyzer/blob/main/bccc.jpg)
 
-# CANSigLyzer
+# Control Area Network Signal Analyzer (CANSigLyzer)
 
 
 
