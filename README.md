@@ -1,4 +1,4 @@
-![](https://github.com/ahlashkari/CANSigLyzer/blob/master/bccc.jpg)
+![](https://github.com/ahlashkari/CANSigLyzer/blob/main/bccc.jpg)
 
 # CANSigLyzer
 
