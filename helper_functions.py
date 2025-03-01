@@ -60,7 +60,7 @@ def getTimeIntervals(df):
     df = df.drop(columns=['timestamp'])   
 
     # Rearrange columns
-    df = df[['time_interval', 'aid_time_interval', 'arbitration_id', 'data_field', 'attack']]          
+    df = df[['time_interval', 'aid_time_interval', 'arbitration_id', 'data_field', 'attack', 'attack_class']]          
 
     return df
 
@@ -152,7 +152,8 @@ def deserializeCANDataFrame(df, db, attack=False, signals=None):
         if attack:
             dfsig_norm = dfsig_norm.reindex(columns=signals)
 
-        df = pd.concat([df[[col for col in df.columns if col != 'attack']], dfsig_norm, df[['attack']]], axis=1)
+        # df = pd.concat([df[[col for col in df.columns if col != 'attack']], dfsig_norm, df[['attack']]], axis=1)
+        df = pd.concat([df[[col for col in df.columns if col not in ['attack', 'attack_class']]], dfsig_norm, df[['attack', 'attack_class']]], axis=1)
         
     except Exception as e:
         raise e
@@ -173,7 +174,7 @@ def getSignalMinMax(db, cols):
     Returns a DataFrame with the AID.Signal signal names as index and columns minimum and maximum 
     '''
 
-    cols = [x for x in cols if x not in ['timestamp', 'time_interval', 'aid_time_interval', 'arbitration_id', 'attack']]
+    cols = [x for x in cols if x not in ['timestamp', 'time_interval', 'aid_time_interval', 'arbitration_id', 'attack', 'attack_class']]
     result = pd.DataFrame(columns=['minimum', 'maximum'])
 
     signal  = []
@@ -218,13 +219,12 @@ def getColumnMinMax(df, db, cols):
     
     minimum = []
     maximum = []
-    remain_cols = [col for col in cols if (col not in signal_min_max.index and col != 'attack')]  
+    # remain_cols = [col for col in cols if (col not in signal_min_max.index and col != 'attack')]  
+    remain_cols = [col for col in cols if (col not in signal_min_max.index and col not in ['attack', 'attack_class'])]  
     
     for col in remain_cols:                                 # Get min and max values from training set for time intervals, AIDs, and any signal for which there are no min and max values in DBC
         minimum.append(df[col].min())
         maximum.append(df[col].max())
-
-
 
     result = pd.DataFrame({
         'minimum' : minimum,
@@ -247,7 +247,7 @@ def minMaxScaleWindow(df, minmax_vals):
     try: 
         df = df.astype('float64')
         for col in df.columns:
-            if col != 'attack':
+            if col != 'attack' and col != 'attack_class':
                 min = minmax_vals['minimum'][col]
                 max = minmax_vals['maximum'][col]
                 df[col] = (df[col] - min) / (max - min)
@@ -269,7 +269,7 @@ def minMaxScaleWindowModel(df, minmax_vals):
     '''
 
     ## Exclude attack column
-    cols = [x for x in df.columns if x != 'attack']
+    cols = [x for x in df.columns if x not in ['attack', 'attack_class']]
 
     # Get min and max values for each column
     minmax_vals = minmax_vals.T
