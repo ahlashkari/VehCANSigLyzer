@@ -1,6 +1,6 @@
 ![](https://github.com/ahlashkari/CANSigLyzer/blob/main/bccc.jpg)
 
-# Control Area Network Signal Analyzer (CANSigLyzer)
+# Controller Area Network Signal Analyzer (CANSigLyzer)
 
 
 
@@ -11,7 +11,7 @@
 
 * [**Arash Habibi Lashkari:**](http://ahlashkari.com/index.asp) Founder and supervisor
 
-* [**Shaila Sharmin:**](https://github.com/ohoaha) Graduate student, Researcher, and developer - York University ( 6 months, 2024 - 2025)
+* [**Shaila Sharmin:**](https://github.com/ohoaha) Graduate student, researcher, and developer - York University (6 months, 2024 - 2025)
 
 
 
