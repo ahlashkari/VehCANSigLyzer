@@ -1,0 +1,8 @@
+# Blocklist files/folders in same directory as the .gitignore file
+*
+
+# Includelist some files
+!.gitignore
+!cansiglyzer.ipynb
+!helper_functions.py
+!model.py

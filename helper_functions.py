@@ -293,4 +293,3 @@ def minMaxScale(list_windows, minmax_vals):
 
     return list_windows
 
-
