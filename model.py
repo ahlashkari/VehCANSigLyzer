@@ -145,11 +145,11 @@ class CANResNet(nn.Module):
 def train_CANResNet(config, trial=None):
 
     # Dataset
-    with open(config['file_path']+'labels_train', 'rb') as fp:
+    with open(config['file_path']+'model_data/labels_train', 'rb') as fp:
         labels_train = pickle.load(fp)
-    with open(config['file_path']+'labels_val', 'rb') as fp:
+    with open(config['file_path']+'model_data/labels_val', 'rb') as fp:
         labels_val = pickle.load(fp)
-    with open(config['file_path']+'final_colnames', 'rb') as fp:    # Load column names and scaler
+    with open(config['file_path']+'output/final_colnames', 'rb') as fp:    # Load column names and scaler
     # with open(config['file_path']+'feature_sub_info_gain', 'rb') as fp:
         colnames = pickle.load(fp)
 
@@ -254,7 +254,7 @@ def train_CANResNet(config, trial=None):
             with torch.no_grad():
 
                 can_mats, labels = can_mats.to(device), labels.to(device)
-                can_mats = can_mats.unsqueeze(1)
+                can_mats = can_mats.unsqueeze(1)    # Introducing channel dimension
 
                 outputs = model(can_mats)
                 _, predicted = torch.max(outputs.data, 1)
@@ -360,42 +360,19 @@ def hyperparameterSearch(config=None):
 
     config_list = [
         {
-            'nchannels'     : 64,
+            'nchannels'     : 16,
             'kernel_size'   : 5,
             'dilation'      : 1,
             'nlayers'       : 3,
             'fc_size'       : 128,
             'lr'            : 1e-2,
             'weight_decay'  : 1e-5,
-            'epochs'        : 10,
-            'batch_size'    : 16384,
-            'file_path'     : '/home/bccc/shaila/'
-        },
-        {
-            'nchannels'     : 128,
-            'kernel_size'   : 5,
-            'dilation'      : 1,
-            'nlayers'       : 3,
-            'fc_size'       : 128,
-            'lr'            : 1e-2,
-            'weight_decay'  : 1e-5,
-            'epochs'        : 10,
-            'batch_size'    : 16384,
-            'file_path'     : '/home/bccc/shaila/'
-        },
-        {
-            'nchannels'     : 256,
-            'kernel_size'   : 5,
-            'dilation'      : 1,
-            'nlayers'       : 3,
-            'fc_size'       : 128,
-            'lr'            : 1e-2,
-            'weight_decay'  : 1e-5,
-            'epochs'        : 10,
+            'epochs'        : 20,
             'batch_size'    : 16384,
             'file_path'     : '/home/bccc/shaila/'
         }
     ]
+
     keys=config_list[0].keys()
 
     if os.path.exists("/home/bccc/shaila/model_results/search_results.csv"):
@@ -436,7 +413,7 @@ def hyperparameterSearch(config=None):
     search_results.to_csv("/home/bccc/shaila/model_results/search_results.csv", index=False)
 
     print("\nSaving best model configuration to disk..")
-    with open('best_result', 'wb') as fp:
+    with open('model_results/best_result', 'wb') as fp:
         pickle.dump(dict(search_results.iloc[0]), fp)
 
     return dict(search_results.iloc[0])
@@ -454,10 +431,10 @@ def testBestModel(best_result=None):
 
     # Dataset
     config=best_result
-    with open(config['file_path']+'labels_test', 'rb') as fp:
+    with open(config['file_path']+'model_data/labels_test', 'rb') as fp:
         labels_test = pickle.load(fp)
+    # with open(config['file_path']+'output/final_colnames', 'rb') as fp:
     with open(config['file_path']+'final_colnames', 'rb') as fp:
-    # with open(config['file_path']+'feature_sub_info_gain', 'rb') as fp:
         colnames = pickle.load(fp)
 
     test_dataset = CAN_data(data_file_name="test_data", labels=labels_test, colnames=colnames, file_path=config['file_path'])
@@ -490,5 +467,7 @@ config = {
 }
 
 if __name__ == "__main__":  
-    hyperparameterSearch(config=None)
+    # hyperparameterSearch(config=None)
+    testBestModel(best_result=None)
+    
 
