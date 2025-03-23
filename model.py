@@ -12,23 +12,21 @@ from torch.utils.data import Dataset, DataLoader
 from torchinfo import summary
 import itertools
 import time
+import random
 
-# from ray import tune
-# from ray import train, tune
-# from ray.train import Checkpoint
-
-# from ray.train import RunConfig, CheckpointConfig
+import torch.backends.cudnn as cudnn
+cudnn.benchmark = True  # Optimizes convolution operations
 
 import helper_functions
 from helper_functions import *
 
 
 class CAN_data(Dataset):
-    def __init__(self, data_file_name, labels, colnames, file_path):
+    def __init__(self, data_file_name, labels, colnames):
 
         # labels = labels[:1000]
         
-        self.data = np.memmap(file_path+"model_data/"+data_file_name+".npy", dtype="float", mode="r", shape=(len(labels), 150, len(colnames)))
+        self.data = np.memmap("model_data/"+data_file_name+".npy", dtype="float", mode="r", shape=(len(labels), 150, len(colnames)))
         self.labels = torch.tensor(np.stack(labels))
 
     def __len__(self):
@@ -145,17 +143,16 @@ class CANResNet(nn.Module):
 def train_CANResNet(config, trial=None):
 
     # Dataset
-    with open(config['file_path']+'model_data/labels_train', 'rb') as fp:
+    with open('model_data/labels_train', 'rb') as fp:
         labels_train = pickle.load(fp)
-    with open(config['file_path']+'model_data/labels_val', 'rb') as fp:
+    with open('model_data/labels_val', 'rb') as fp:
         labels_val = pickle.load(fp)
-    with open(config['file_path']+'output/final_colnames', 'rb') as fp:    # Load column names and scaler
-    # with open(config['file_path']+'feature_sub_info_gain', 'rb') as fp:
+    with open('output/final_colnames_clustered', 'rb') as fp:    # Load column names and scaler
         colnames = pickle.load(fp)
 
     print("Loading datasets..")
-    train_dataset = CAN_data(data_file_name="train_data", labels=labels_train, colnames=colnames, file_path=config['file_path'])
-    val_dataset = CAN_data(data_file_name="val_data", labels=labels_val, colnames=colnames, file_path=config['file_path'])
+    train_dataset = CAN_data(data_file_name="train_data", labels=labels_train, colnames=colnames)
+    val_dataset = CAN_data(data_file_name="val_data", labels=labels_val, colnames=colnames)
     print("Datasets loaded.")
 
     # DataLoaders for training and validation datasets
@@ -181,7 +178,7 @@ def train_CANResNet(config, trial=None):
     print("Device:", device)
     model.to(device)  
 
-    print(summary(model, (1, 150,  len(colnames)), batch_dim=0, verbose=1, col_names=["input_size","output_size","num_params"]))
+    summary(model, (1, 150,  len(colnames)), batch_dim=0, verbose=1, col_names=["input_size","output_size","num_params"])
 
     # Loss function, optimizer, and learning rate scheduler
     criterion = nn.CrossEntropyLoss()
@@ -195,7 +192,7 @@ def train_CANResNet(config, trial=None):
     )
 
     # Compile model
-    model = torch.compile(model, dynamic=True)
+    # model = torch.compile(model, dynamic=True)
 
     scaler = torch.amp.GradScaler(device_str)
 
@@ -203,6 +200,10 @@ def train_CANResNet(config, trial=None):
     val_steps   = 0
     total       = 0
     correct     = 0
+
+    t_losses = []
+    v_losses = []
+    v_accs   = []
 
     for epoch in range(config['epochs']):
         model.train()                   
@@ -236,23 +237,25 @@ def train_CANResNet(config, trial=None):
 
             running_loss += loss.item()         # Accumulate loss
             epoch_steps  += 1
-            if i % 2000 == 1999:
-                print(f'Epoch {epoch+1} Batch {i+1} Loss: {running_loss / epoch_steps}')
-                running_loss = 0.0
-            i += 1
+
+            # if i % 2000 == 1999:
+            #     print(f'Epoch {epoch+1} Batch {i+1} Loss: {running_loss / epoch_steps}')
+            #     running_loss = 0.0
+            # i += 1
+
+        t_losses.append((running_loss / epoch_steps))
 
         # Validation loss
         model.eval()
-
         val_loss    = 0.0
         val_steps   = 0
         total       = 0
         correct     = 0
 
-        losses  = []
-        for can_mats, labels in val_loader:
+        # for can_mats, labels in val_loader:
+        for i,data in enumerate(tqdm(val_loader, desc=f'    Validation: ', unit="batch")):
             with torch.no_grad():
-
+                can_mats, labels = data 
                 can_mats, labels = can_mats.to(device), labels.to(device)
                 can_mats = can_mats.unsqueeze(1)    # Introducing channel dimension
 
@@ -265,20 +268,21 @@ def train_CANResNet(config, trial=None):
                 val_loss += loss.item()
                 val_steps += 1
 
-                losses.append((val_loss / val_steps))
+        v_losses.append((val_loss / val_steps))
+        v_accs.append((correct / total))
 
-        print(f'    Validation Loss: {val_loss / val_steps}, Accuracy: {correct / total}')
+        print(f'    Training Loss: {running_loss / epoch_steps}, Validation Loss: {val_loss / val_steps}, Accuracy: {correct / total}')
         
 
     # Save model
-    torch.save((model.state_dict(), optimizer.state_dict(), scaler.state_dict(), losses), "/home/bccc/shaila/model_results/trial"+str(trial)+".pt")
+    torch.save((model.state_dict(), optimizer.state_dict(), scaler.state_dict(), t_losses, v_losses, v_accs), "model_results/trial"+str(int(trial))+".pt")
 
     torch.cuda.empty_cache()
     print("Training completed.")
     print()
 
 
-    return (val_loss / val_steps), (correct / total)
+    return (running_loss / epoch_steps), (val_loss / val_steps), (correct / total)
 
 
 def test_CANResNet(best_result, test_dataset, colnames, trial=None):
@@ -305,12 +309,11 @@ def test_CANResNet(best_result, test_dataset, colnames, trial=None):
     model.to(device)  
 
     # Compile model
-    model = torch.compile(model, dynamic=True)
+    # model = torch.compile(model, dynamic=True)
 
-    # Load best model
-    # checkpoint_path = os.path.join(best_result.checkpoint.to_directory(), "checkpoint.pt")
-    checkpoint_path = "/home/bccc/shaila/model_results/trial"+str(trial)+".pt"
-    model_state, _, _, _ = torch.load(checkpoint_path)
+    # Load best model    
+    checkpoint_path = "model_results/trial"+str(int(trial))+".pt"
+    model_state, _, _, _, _, _ = torch.load(checkpoint_path)
     model.load_state_dict(model_state)
     print("Best model loaded from checkpoint.")
 
@@ -323,8 +326,10 @@ def test_CANResNet(best_result, test_dataset, colnames, trial=None):
     actua = []  # actual labels
     total       = 0
     correct     = 0
-    for can_mats, labels in test_loader:
+    # for can_mats, labels in test_loader:
+    for i, data in enumerate(tqdm(test_loader, desc=f"Test: ", unit="batch")):
         with torch.no_grad():
+            can_mats, labels = data
             can_mats, labels = can_mats.to(device), labels.to(device)
             can_mats = can_mats.unsqueeze(1)
             
@@ -346,7 +351,7 @@ def test_CANResNet(best_result, test_dataset, colnames, trial=None):
         'actual_label'      : torch.cat(actua).tolist(),
         'predicted_label'   : torch.cat(preds).tolist()
     })
-    test_results.to_csv("/home/bccc/shaila/model_results/test"+str(trial)+".csv", index=False)
+    test_results.to_csv("model_results/test"+str(int(trial))+".csv", index=False)
 
     print("Testing completed.")
     print()
@@ -355,74 +360,84 @@ def test_CANResNet(best_result, test_dataset, colnames, trial=None):
 def hyperparameterSearch(config=None):
 
     # Generate all possible configurations 
-    # keys, values = zip(*config.items())
-    # config_list = [dict(zip(keys, v)) for v in itertools.product(*values)]
-
-    config_list = [
-        {
-            'nchannels'     : 16,
-            'kernel_size'   : 5,
-            'dilation'      : 1,
-            'nlayers'       : 3,
-            'fc_size'       : 128,
-            'lr'            : 1e-2,
-            'weight_decay'  : 1e-5,
-            'epochs'        : 20,
-            'batch_size'    : 16384,
-            'file_path'     : '/home/bccc/shaila/'
-        }
-    ]
+    keys, values = zip(*config.items())
+    config_list = [dict(zip(keys, v)) for v in itertools.product(*values)]
 
     keys=config_list[0].keys()
 
-    if os.path.exists("/home/bccc/shaila/model_results/search_results.csv"):
-        search_results = pd.read_csv("/home/bccc/shaila/model_results/search_results.csv")
+    if os.path.exists("model_results/search_results.csv"):
+        search_results = pd.read_csv("model_results/search_results.csv")
         trial = int(search_results['trial'].max()) + 1
     else:
-        search_results = pd.DataFrame(columns=[k for k in keys]+['time', 'loss', 'accuracy'])
+        search_results = pd.DataFrame(columns=[k for k in keys]+['time', 'train_loss', 'val_loss', 'accuracy', 'trial'])
         trial = 1
+
+    if len(config_list) > 40:
+        random.seed(101)
+        sample_indices = random.sample(range(len(config_list)), 40)
+        config_list = [config_list[i] for i in sample_indices]
+
+    # config_list = [
+    #     {
+    #         'nchannels'     : 16,
+    #         'kernel_size'   : 5,
+    #         'dilation'      : 1,
+    #         'nlayers'       : 3,
+    #         'fc_size'       : 128,
+    #         'lr'            : 1e-2,
+    #         'weight_decay'  : 1e-5,
+    #         'epochs'        : 20,
+    #         'batch_size'    : 16384
+    #     }
+    # ]
+
+    with open('model_results/config_list', 'wb') as fp:
+        pickle.dump(config_list, fp)
+
+    if trial > 1:
+        config_list = config_list[(trial-1):]
 
     for conf in config_list:
 
-        print("Trial", trial)
+        print("Trial", int(trial))
         print(conf)
 
         start_time = time.time()
-        loss, accuracy = train_CANResNet(config=conf, trial=trial)
+        t_loss, v_loss, accuracy = train_CANResNet(config=conf, trial=trial)
         end_time   = time.time()
 
         c = conf.copy()
 
         c['time'] = end_time - start_time
-        c['loss'] = loss
+        c['train_loss'] = t_loss
+        c['val_loss'] = v_loss
         c['accuracy'] = accuracy
         c['trial'] = trial  
 
         search_results = pd.concat([search_results if not search_results.empty else None, pd.DataFrame([c])], ignore_index=True)
 
-        print(search_results)
+        print("Trial", int(trial), "complete.")
 
         trial = trial + 1
 
+        print("Trials models sorted best to worst (by validation loss): ")
+        print(search_results.sort_values(by='val_loss'))
+        print()
 
-    search_results = search_results.sort_values(by='loss')
-    print("Trials models sorted best to worst (by validation loss): ")
-    print(search_results)
-    print()
+        search_results.to_csv("model_results/search_results.csv", index=False)
 
-    search_results.to_csv("/home/bccc/shaila/model_results/search_results.csv", index=False)
+        print("\nSaving best model configuration to disk..")
+        best_result = dict(search_results.sort_values(by='val_loss').iloc[0])
+        with open('model_results/best_result', 'wb') as fp:
+            pickle.dump(best_result, fp)
 
-    print("\nSaving best model configuration to disk..")
-    with open('model_results/best_result', 'wb') as fp:
-        pickle.dump(dict(search_results.iloc[0]), fp)
-
-    return dict(search_results.iloc[0])
+    return best_result
 
 
 def testBestModel(best_result=None):
 
     if best_result == None:
-        with open('best_result', 'rb') as fp:
+        with open('model_results/best_result', 'rb') as fp:
             best_result = pickle.load(fp)
 
     print("Testing best model..")
@@ -431,13 +446,12 @@ def testBestModel(best_result=None):
 
     # Dataset
     config=best_result
-    with open(config['file_path']+'model_data/labels_test', 'rb') as fp:
+    with open('model_data/labels_test', 'rb') as fp:
         labels_test = pickle.load(fp)
-    # with open(config['file_path']+'output/final_colnames', 'rb') as fp:
-    with open(config['file_path']+'final_colnames', 'rb') as fp:
+    with open('output/final_colnames_clustered', 'rb') as fp:
         colnames = pickle.load(fp)
 
-    test_dataset = CAN_data(data_file_name="test_data", labels=labels_test, colnames=colnames, file_path=config['file_path'])
+    test_dataset = CAN_data(data_file_name="test_data", labels=labels_test, colnames=colnames)
     test_CANResNet(best_result=best_result, test_dataset=test_dataset, colnames=colnames, trial=config['trial'])
 
 # config = {
@@ -454,20 +468,18 @@ def testBestModel(best_result=None):
 # }
 
 config = {
-    'nchannels'     : [16],    
-    'kernel_size'   : [5],
-    'dilation'      : [1],
-    'nlayers'       : [3],
-    'fc_size'       : [128],
-    'lr'            : [1e-4, 1e-3, 1e-2],
-    'weight_decay'  : [1e-5, 1e-4, 1e-3],
+    'nchannels'     : [16, 32, 64],    
+    'kernel_size'   : [5, 7, 9],
+    'dilation'      : [1, 2],
+    'nlayers'       : [3, 4, 5, 6, 7],
+    'fc_size'       : [64, 128, 256],
+    'lr'            : [1e-2],
+    'weight_decay'  : [1e-5],
     'epochs'        : [15],
-    'batch_size'    : [16384],
-    'file_path'     : ['/home/bccc/shaila/']
+    'batch_size'    : [16384]
 }
 
 if __name__ == "__main__":  
-    # hyperparameterSearch(config=None)
-    testBestModel(best_result=None)
-    
 
+    hyperparameterSearch(config=config)
+    testBestModel()
