@@ -13,7 +13,7 @@ This analyzer derives two useful timing-related features from the raw timestamp 
 
 These timing features capture the disruptions introduced by injected messages during an attack.
 
-## Signal Extraction from CAN Frames
+## Signal-Based Features
 Signals encoded in each frame's data_field were decoded using the cantools Python library. This analyzer used a DBC file—specifically, the hyundai_kia_generic.dbc from the OpenDBC project. Although the exact vehicle model in the CAN-MIRGU dataset is unknown, this DBC file matches both the AIDs and their associated functions as described in the original paper.
 
 We extracted 545 distinct signals from the decoded frames, each associated with a specific AID. Signal column names are prefixed to avoid collisions with their corresponding AID (e.g., 289_engine_speed).
