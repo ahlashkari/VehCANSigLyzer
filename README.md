@@ -1,6 +1,6 @@
 ![](https://github.com/ahlashkari/CANSigLyzer/blob/main/bccc.jpg)
 
-# Vehicle Controller Area Network (CAN) Signal Analyzer (VehCANSigLyzer)
+# Vehicular Controller Area Network (CAN) Signal Analyzer (VehCANSigLyzer)
 
 Fabrication attacks involve the injection of fake CAN frames onto the CAN bus, which disrupts the normal timing of legitimate frames and provides Electronic Control Units (ECUs) with incorrect signal data. This analyzer extracts two categories of raw CAN traffic features to detect such behavior: timing-based and signal-level features.
 
