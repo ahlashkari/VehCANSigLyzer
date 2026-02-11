@@ -28,6 +28,11 @@ Our final feature matrix includes:
 * Two timing-based features, `time_interval` and `aid_time_interval`
 * 500+ decoded signal features
 
+# Copyright (c) 2025
+
+For citation in your works and also understanding ALFlowLyzer completely, you can find below published papers:
+
+- CAN-BiGRUBERT: Unveiling Automotive Vehicle Intruders by Profiling and Characterizing Anomalies in Controller Area Network Shaila Sharmin, Arash Habibi Lashkaria, Hafizah Mansorb and Andi Fitriah Abdul Kadirb, Computer Networks, Vol. 276, 2025 
 
 # Project Team members 
 
