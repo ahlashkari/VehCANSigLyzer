@@ -6,7 +6,7 @@ Fabrication attacks involve the injection of fake CAN frames onto the CAN bus, w
 
 While this analyzer has been used with the [HCRL Attack & Defense Challenge dataset](https://www.ndss-symposium.org/wp-content/uploads/autosec2021_23035_paper.pdf) (HCRL A&D), it may be used to extract timing-based and signal-level features from any dataset that is similarly formatted and for which a CAN database file (.DBC) is available. DBCs for many vehicle models are available at [`opendbc`](https://github.com/commaai/opendbc), which is an open-source repository of reverse-engineered DBC files.  
 
-## Timing-Based Features
+### Timing-Based Features
 This analyzer derives two useful timing-related features from the raw timestamp column:
 
 * `time_interval` - The time difference between each CAN frame and the previous frame (regardless of arbitration identifier (AID))
@@ -14,19 +14,29 @@ This analyzer derives two useful timing-related features from the raw timestamp 
 
 These timing features capture the disruptions introduced by injected messages during a fabrication attack.
 
-## Signal-Based Features
+### Signal-Based Features
 Signals encoded in each frame's `data_field` were decoded using the `cantools` Python library. Extracting signal features requires the correct DBC for the source vehicle. 
 
 For the HCRL A&D dataset, the `hyundai_kia_generic.dbc` file was used from the `opendbc` project.
 
 We extracted 660 distinct signals from the decoded frames, each associated with a specific AID. Signal column names are prefixed with the corresponding AID to avoid collisions with other similarly named signals (e.g., `386.WHL_SPD_RR`).
 
-## Final Feature Set
+### Final Feature Set
 
 Our final feature matrix includes:
 * `arbitration_id` (converted to decimal),
 * Two timing-based features, `time_interval` and `aid_time_interval`
 * 600+ decoded signal features
+
+## Usage 
+
+Before using VehCANSigLyzer, install the required packages listed in `requirements.txt` using 
+```bash
+pip install -r requirements.txt`.
+``` 
+VehCANSigLyzer was developed and tested using Python 3.10.0, but other versions may be compatible as well. 
+
+To use it with the HCRL A&D dataset, download the dataset to a folder named `hcrl` in the root folder. 
 
 # Copyright (c) 2025
 
