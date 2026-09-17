@@ -38,19 +38,19 @@ VehCANSigLyzer was developed and tested using Python 3.10.0, but other versions 
 
 To use it with the HCRL A&D dataset, download the dataset to a folder named `hcrl` in the root folder. 
 
-# Copyright (c) 2025
+## Copyright (c) 2025
 
 For citation in your works and also understanding VehCANSigLyzer completely, you can find below published papers:
 
 - CAN-BiGRUBERT: Unveiling Automotive Vehicle Intruders by Profiling and Characterizing Anomalies in Controller Area Network Shaila Sharmin, Arash Habibi Lashkari, Hafizah Mansor and Andi Fitriah Abdul Kadir, Computer Networks, Vol. 276, 2025 
 
-# Project Team members 
+## Project Team members 
 
 * [**Arash Habibi Lashkari:**](http://ahlashkari.com/index.asp) Founder and supervisor
 
 * [**Shaila Sharmin:**](https://github.com/ohoaha) Graduate student, researcher, and developer - York University (6 months, 2024 - 2025)
 
 
-# Acknowledgment
+## Acknowledgment
 
 This project was made possible through funding from the Mitacs Globalink Research Award (GRA) to Shaila Sharmin, who is under the supervision of Prof. Arash Habibi Lashkari at York University in Canada.
