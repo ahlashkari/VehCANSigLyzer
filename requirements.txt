@@ -1,0 +1,11 @@
+cantools==40.2.3
+matplotlib==3.11.2
+matplotlib_venn==1.1.2
+numpy==2.5.3
+pandas==3.0.5
+scikit_learn==1.9.1
+scipy==1.18.1
+tokenizer==3.6.4
+torch==2.11.0+cu128
+torch==2.13.0+cu130
+tqdm==4.67.1
