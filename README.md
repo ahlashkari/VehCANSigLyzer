@@ -4,7 +4,7 @@
 
 Fabrication attacks involve the injection of fake CAN frames onto the CAN bus, which disrupts the normal timing of legitimate frames and provides Electronic Control Units (ECUs) with incorrect signal data. This analyzer extracts two categories of raw CAN traffic features to detect such behavior: timing-based and signal-level features.
 
-While this analyzer has been used with the [CAN-MIRGU dataset](https://www.ndss-symposium.org/ndss-paper/auto-draft-482/), it may be used to extract timing-based and signal-level features from any dataset that is similarly formatted and for which a CAN database file (.DBC) is available. DBCs for many vehicle models are available at [`opendbc`](https://github.com/commaai/opendbc), which is an open-source repository of reverse-engineered DBC files.  
+While this analyzer has been used with the [HCRL Attack & Defense Challenge dataset](https://www.ndss-symposium.org/wp-content/uploads/autosec2021_23035_paper.pdf), it may be used to extract timing-based and signal-level features from any dataset that is similarly formatted and for which a CAN database file (.DBC) is available. DBCs for many vehicle models are available at [`opendbc`](https://github.com/commaai/opendbc), which is an open-source repository of reverse-engineered DBC files.  
 
 ## Timing-Based Features
 This analyzer derives two useful timing-related features from the raw timestamp column:
@@ -26,13 +26,13 @@ We extracted 545 distinct signals from the decoded frames, each associated with 
 Our final feature matrix includes:
 * `arbitration_id` (converted to decimal),
 * Two timing-based features, `time_interval` and `aid_time_interval`
-* 500+ decoded signal features
+* 600+ decoded signal features
 
 # Copyright (c) 2025
 
-For citation in your works and also understanding ALFlowLyzer completely, you can find below published papers:
+For citation in your works and also understanding VehCANSigLyzer completely, you can find below published papers:
 
-- CAN-BiGRUBERT: Unveiling Automotive Vehicle Intruders by Profiling and Characterizing Anomalies in Controller Area Network Shaila Sharmin, Arash Habibi Lashkaria, Hafizah Mansorb and Andi Fitriah Abdul Kadirb, Computer Networks, Vol. 276, 2025 
+- CAN-BiGRUBERT: Unveiling Automotive Vehicle Intruders by Profiling and Characterizing Anomalies in Controller Area Network Shaila Sharmin, Arash Habibi Lashkari, Hafizah Mansor and Andi Fitriah Abdul Kadir, Computer Networks, Vol. 276, 2025 
 
 # Project Team members 
 
