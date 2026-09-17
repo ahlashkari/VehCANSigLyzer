@@ -32,7 +32,7 @@ Our final feature matrix includes:
 
 Before using VehCANSigLyzer, install the required packages listed in `requirements.txt` using 
 ```bash
-pip install -r requirements.txt`.
+pip install -r requirements.txt
 ``` 
 VehCANSigLyzer was developed and tested using Python 3.10.0, but other versions may be compatible as well. 
 
