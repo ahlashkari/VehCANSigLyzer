@@ -4,7 +4,7 @@
 
 Fabrication attacks involve the injection of fake CAN frames onto the CAN bus, which disrupts the normal timing of legitimate frames and provides Electronic Control Units (ECUs) with incorrect signal data. This analyzer extracts two categories of raw CAN traffic features to detect such behavior: timing-based and signal-level features.
 
-While this analyzer has been used with the [HCRL Attack & Defense Challenge dataset](https://www.ndss-symposium.org/wp-content/uploads/autosec2021_23035_paper.pdf), it may be used to extract timing-based and signal-level features from any dataset that is similarly formatted and for which a CAN database file (.DBC) is available. DBCs for many vehicle models are available at [`opendbc`](https://github.com/commaai/opendbc), which is an open-source repository of reverse-engineered DBC files.  
+While this analyzer has been used with the [HCRL Attack & Defense Challenge dataset](https://www.ndss-symposium.org/wp-content/uploads/autosec2021_23035_paper.pdf) (HCRL A&D), it may be used to extract timing-based and signal-level features from any dataset that is similarly formatted and for which a CAN database file (.DBC) is available. DBCs for many vehicle models are available at [`opendbc`](https://github.com/commaai/opendbc), which is an open-source repository of reverse-engineered DBC files.  
 
 ## Timing-Based Features
 This analyzer derives two useful timing-related features from the raw timestamp column:
@@ -17,9 +17,9 @@ These timing features capture the disruptions introduced by injected messages du
 ## Signal-Based Features
 Signals encoded in each frame's `data_field` were decoded using the `cantools` Python library. Extracting signal features requires the correct DBC for the source vehicle. 
 
-For the CAN-MIRGU dataset, the `hyundai_kia_generic.dbc` file was used from the `opendbc` project. Although the exact vehicle model in the CAN-MIRGU dataset is unknown, this DBC file matches both the AIDs and their associated functions as described in the original paper.
+For the HCRL A&D dataset, the `hyundai_kia_generic.dbc` file was used from the `opendbc` project.
 
-We extracted 545 distinct signals from the decoded frames, each associated with a specific AID. Signal column names are prefixed with the corresponding AID to avoid collisions with other similarly named signals (e.g., `2B0.SAS_Speed`).
+We extracted 660 distinct signals from the decoded frames, each associated with a specific AID. Signal column names are prefixed with the corresponding AID to avoid collisions with other similarly named signals (e.g., `386.WHL_SPD_RR`).
 
 ## Final Feature Set
 
