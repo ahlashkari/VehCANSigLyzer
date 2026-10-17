@@ -64,9 +64,9 @@ To cite VehCANSigLyzer in your work and understand it completely, find the follo
 
 ## Team Members
 
-* [**Arash Habibi Lashkari:**](http://ahlashkari.com/index.asp) Founder and Supervisor
+* [**Arash Habibi Lashkari**](http://ahlashkari.com/index.asp): Founder and Supervisor
 
-* [**Shaila Sharmin:**](https://github.com/ohoaha) International Visiting Research Trainee - York University (2024–2025)
+* [**Shaila Sharmin**](https://github.com/ohoaha): International Visiting Research Trainee - York University (2024–2025)
 
 
 ## Acknowledgment
