@@ -1,6 +1,8 @@
 ![](https://github.com/ahlashkari/CANSigLyzer/blob/main/bccc.jpg)
 
-# Vehicular Controller Area Network (CAN) Signal Analyzer (VehCANSigLyzer)
+# VehCANSigLyzer
+
+**Vehicular Controller Area Network (CAN) Signal Analyzer**
 
 Fabrication attacks involve the injection of fake CAN frames onto the CAN bus, which disrupts the normal timing of legitimate frames and provides Electronic Control Units (ECUs) with incorrect signal data. This analyzer extracts two categories of raw CAN traffic features to detect such behavior: timing-based and signal-level features.
 
@@ -38,19 +40,35 @@ VehCANSigLyzer was developed and tested using Python 3.10.0, but other versions 
 
 To use it with the HCRL A&D dataset, download the dataset to a folder named `hcrl` in the root folder. 
 
-## Copyright (c) 2025
+## Contributing
 
-For citation in your works and also understanding VehCANSigLyzer completely, you can find below published papers:
+Contributions are welcome in the form of pull requests. 
 
-- CAN-BiGRUBERT: Unveiling Automotive Vehicle Intruders by Profiling and Characterizing Anomalies in Controller Area Network Shaila Sharmin, Arash Habibi Lashkari, Hafizah Mansor and Andi Fitriah Abdul Kadir, Computer Networks, Vol. 276, 2025 
 
-## Project Team members 
+## Copyright (c) 2026 & Citation
 
-* [**Arash Habibi Lashkari:**](http://ahlashkari.com/index.asp) Founder and supervisor
+To cite VehCANSigLyzer in your work and understand it completely, find the following published paper: 
+```
+@article{sharmin_2026,
+    author = {Sharmin, Shaila and Lashkari, Arash Habibi and Mansor, Hafizah and Abdul Kadir, Andi Fitriah},
+    title = {CAN-BiGRUBERT: Unveiling Automotive Vehicle Intruders by Profiling and Characterizing Anomalies in Controller Area Network},
+    journal = {Computers Networks},
+    year = {2026},
+    volume = {276},
+    pages = {111963},
+    issn = {1389-1286},
+    doi = {10.1016/j.comnet.2025.111963}
+}
+```
 
-* [**Shaila Sharmin:**](https://github.com/ohoaha) Graduate student, researcher, and developer - York University (6 months, 2024 - 2025)
+
+## Team Members
+
+* [**Arash Habibi Lashkari:**](http://ahlashkari.com/index.asp) Founder and Supervisor
+
+* [**Shaila Sharmin:**](https://github.com/ohoaha) International Visiting Research Trainee - York University (2024–2025)
 
 
 ## Acknowledgment
 
-This project was made possible through funding from the Mitacs Globalink Research Award (GRA) to Shaila Sharmin, who is under the supervision of Prof. Arash Habibi Lashkari at York University in Canada.
+This project was made possible through funding from the Mitacs Globalink Research Award (GRA) to Shaila Sharmin, under the supervision of Prof. Arash Habibi Lashkari.
