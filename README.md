@@ -49,7 +49,7 @@ Contributions are welcome in the form of pull requests.
 
 To cite VehCANSigLyzer in your work and understand it completely, find the following published paper: 
 ```
-@article{sharmin_2026,
+@article{sharmin_can-bigrubert_2026,
     author = {Sharmin, Shaila and Lashkari, Arash Habibi and Mansor, Hafizah and Abdul Kadir, Andi Fitriah},
     title = {CAN-BiGRUBERT: Unveiling Automotive Vehicle Intruders by Profiling and Characterizing Anomalies in Controller Area Network},
     journal = {Computers Networks},
